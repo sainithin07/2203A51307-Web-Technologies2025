@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Library Management System</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+        /* Table Styling */
+        table {
+            width: 60%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+        table, th, td {
+            border: 1px solid black;
+        }
+        th, td {
+            padding: 10px;
+            text-align: center;
+        }
+        /* Input and Button Styling */
+        .input-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        input {
+            padding: 8px;
+            margin: 5px;
+            width: 200px;
+        }
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        .header {
+            text-align: center;
+            margin-top: 40px;
+        }
+    </style>
+</head>
+<body ng-app="libraryApp">
+
+    <div ng-controller="LibraryController" class="container">
+        <h1 class="header">Library Management System</h1>
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Category</th>
+                    <th>Book Count</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr ng-repeat="category in library">
+                    <td>{{ category.category }}</td>
+                    <td><input type="number" ng-model="category.count" ng-change="updateBookCount()"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Section to add new category -->
+        <div class="input-container">
+            <h3>Add New Category</h3>
+            <input type="text" ng-model="newCategory.category" placeholder="Category Name" />
+            <input type="number" ng-model="newCategory.count" placeholder="Book Count" />
+            <button ng-click="addCategory()">Add Category</button>
+        </div>
+    </div>
+
+    <script>
+        var app = angular.module('libraryApp', []);
+
+        app.controller('LibraryController', ['$scope', function($scope) {
+            $scope.library = [
+                { category: 'Fiction', count: 120 },
+                { category: 'Non-Fiction', count: 80 },
+                { category: 'Science', count: 150 },
+                { category: 'Mathematics', count: 70 }
+            ];
+
+            $scope.updateBookCount = function() {
+                // Automatically updates as ng-model is two-way bound
+            };
+
+            $scope.addCategory = function() {
+                var newCategoryName = $scope.newCategory.category;
+                var newCategoryCount = $scope.newCategory.count;
+
+                var exists = $scope.library.some(function(category) {
+                    return category.category.toLowerCase() === newCategoryName.toLowerCase();
+                });
+
+                if (!exists) {
+                    $scope.library.push({ category: newCategoryName, count: newCategoryCount });
+                    $scope.newCategory = {}; // Clear input fields after adding
+                } else {
+                    alert("Category already exists!");
+                }
+            };
+        }]);
+    </script>
+</body>
+</html>
