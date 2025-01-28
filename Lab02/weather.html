@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html ng-app="WeatherApp">
+<head>
+    <title>Weather Dashboard</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <script>
+        var weatherApp = angular.module('WeatherApp', []);
+
+        weatherApp.controller('WeatherController', function ($scope, $http) {
+            $scope.city = ""; // User input for the city
+            $scope.weatherData = {};
+            $scope.errorMessage = "";
+            $scope.favoriteCities = [];
+
+            // Function to fetch weather data for the entered city
+            $scope.fetchWeather = function () {
+                const apiKey = "421809047614d6115ac018cea7ab1126"; // Replace with your API key
+
+                // Ensure city name is trimmed and encoded to avoid issues with spaces or special characters
+                const cityName = $scope.city.trim();
+                if (!cityName) {
+                    $scope.errorMessage = "Please enter a city name.";
+                    return;
+                }
+
+                const url = `https://api.openweathermap.org/data/2.5/weather?q=${cityName}&appid=${apiKey}&units=metric`;
+
+                $http.get(url).then(
+                    function (response) {
+                        $scope.weatherData = {
+                            city: cityName,
+                            temperature: response.data.main.temp,
+                            humidity: response.data.main.humidity,
+                            condition: response.data.weather[0].description,
+                        };
+                        $scope.errorMessage = ""; // Clear any previous error messages
+                    },
+                    function (error) {
+                        console.error(error); // Log error details for debugging
+                        $scope.errorMessage = "City not found or API error. Please try again.";
+                    }
+                );
+            };
+
+            // Function to add the city to favorites
+            $scope.addToFavorites = function () {
+                const cityName = $scope.city.trim();
+                if (cityName && !$scope.favoriteCities.includes(cityName)) {
+                    $scope.favoriteCities.push(cityName);
+                }
+            };
+        });
+
+        // Custom filter to sort the favorite cities alphabetically
+        weatherApp.filter('alphabetical', function () {
+            return function (input) {
+                return input.sort();
+            };
+        });
+    </script>
+</head>
+<body ng-controller="WeatherController">
+    <h1>Weather Dashboard</h1>
+
+    <!-- User input for city name -->
+    <input type="text" ng-model="city" placeholder="Enter city name">
+    <button ng-click="fetchWeather()">Get Weather</button>
+    <button ng-click="addToFavorites()">Add to Favorites</button>
+
+    <!-- Display weather data -->
+    <div ng-if="weatherData.temperature">
+        <h2>Weather in {{ weatherData.city }}</h2>
+        <p>Temperature: {{ weatherData.temperature }} °C</p>
+        <p>Humidity: {{ weatherData.humidity }}%</p>
+        <p>Condition: {{ weatherData.condition }}</p>
+    </div>
+
+    <!-- Display error message if any -->
+    <div ng-if="errorMessage">
+        <p style="color: red;">{{ errorMessage }}</p>
+    </div>
+
+    <!-- Display favorite cities list -->
+    <h3>Favorite Cities</h3>
+    <ul>
+        <li ng-repeat="city in favoriteCities | alphabetical">{{ city }}</li>
+    </ul>
+</body>
+</html>
